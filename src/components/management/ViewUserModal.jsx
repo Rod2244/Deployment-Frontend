@@ -36,6 +36,18 @@ export default function ViewUserModal({ isOpen, onClose, user, onEdit }) {
   const displayValue = (value) =>
     value === null || value === undefined || value === "" ? "N/A" : value;
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const statusColors = {
     Activate: "bg-green-100 text-green-700",
     Deactivate: "bg-red-100 text-red-700",
@@ -68,10 +80,11 @@ export default function ViewUserModal({ isOpen, onClose, user, onEdit }) {
         <div className="mt-4">
           <span
             className={`px-3 py-1 rounded-full text-sm font-medium ${
-              roleColors[userData.role_id] || "bg-gray-100 text-gray-700"
+              // try role string first, fallback to role_name field if available
+              roleColors[userData.role] || roleColors[userData.role_name] || "bg-gray-100 text-gray-700"
             }`}
           >
-            {displayValue(userData.role)}
+            {displayValue(userData.role || userData.role_name)}
           </span>
         </div>
 
@@ -117,7 +130,7 @@ export default function ViewUserModal({ isOpen, onClose, user, onEdit }) {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm">
             <span className="text-gray-500">Created At:</span>
-            <span className="font-medium">{displayValue(userData.created_at)}</span>
+            <span className="font-medium">{formatDate(userData.created_at)}</span>
 
             <span className="text-gray-500">Created By:</span>
             <span className="font-medium">{displayValue(userData.created_by)}</span>
