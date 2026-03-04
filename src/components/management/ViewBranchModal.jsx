@@ -260,20 +260,10 @@ export default function ViewBranchModal({ isOpen, onClose, branch }) {
               )}
             </>
           )}
-
-
-          {activeTab === "Inventory" && <EmptyState text="Inventory status and alerts go here." />}
-          {activeTab === "Reports" && <EmptyState text="Sales and performance reports go here." />}
         </div>
 
         {/* Footer */}
         <div className="flex justify-end border-t bg-gray-50 px-6 py-4">
-          <button
-            onClick={onClose}
-            className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-300"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

@@ -236,12 +236,16 @@ export default function InventoryTab() {
                     <td className="px-6 py-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          item.status === "active"
+                          item.status === "available"
                             ? "bg-green-100 text-green-700"
+                            : item.status === "low_stock"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : item.status === "out_of_stock"
+                            ? "bg-red-100 text-red-700"
                             : "bg-gray-200 text-gray-600"
                         }`}
                       >
-                        {item.status}
+                        {item.status.replace(/_/g, " ")}
                       </span>
                     </td>
                   </tr>
