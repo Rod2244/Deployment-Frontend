@@ -67,7 +67,16 @@ const InventoryManagement = () => {
   const lowStockItems = Array.isArray(inventory)
     ? inventory.filter(
         (item) =>
+          Number(item.quantity) > 0 && 
           Number(item.quantity) <= Number(item.low_stock_threshold)
+      )
+    : [];
+
+  // No stock items
+  const noStockItems = Array.isArray(inventory)
+    ? inventory.filter(
+        (item) =>
+          Number(item.quantity) <= 0 || item.status === 'out_of_stock'
       )
     : [];
 
@@ -87,12 +96,19 @@ const InventoryManagement = () => {
       </div>
 
       {/* Dashboard Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <DashboardCard title="Total Ingredients" value={inventory.length} />
         <DashboardCard
           title="Low Stock Items"
           value={lowStockItems.length}
           alert={lowStockItems.length > 0}
+          alertColor="yellow"
+        />
+        <DashboardCard
+          title="No Stock Items"
+          value={noStockItems.length}
+          alert={noStockItems.length > 0}
+          alertColor="red"
         />
       </div>
 
@@ -239,21 +255,32 @@ const InventoryManagement = () => {
   );
 };
 
-const DashboardCard = ({ title, value, alert }) => (
-  <div
-    className={`p-6 rounded-2xl shadow-md ${
-      alert ? "bg-red-50" : "bg-white"
-    } hover:shadow-lg transition`}
-  >
-    <h3 className="text-gray-500 text-sm">{title}</h3>
-    <p
-      className={`text-2xl font-bold ${
-        alert ? "text-red-600" : "text-gray-800"
-      }`}
+const DashboardCard = ({ title, value, alert, alertColor = "red" }) => {
+  const bgColorMap = {
+    red: "bg-red-50",
+    yellow: "bg-yellow-50",
+  };
+  const textColorMap = {
+    red: "text-red-600",
+    yellow: "text-yellow-600",
+  };
+
+  return (
+    <div
+      className={`p-6 rounded-2xl shadow-md ${
+        alert ? bgColorMap[alertColor] : "bg-white"
+      } hover:shadow-lg transition`}
     >
-      {value}
-    </p>
-  </div>
-);
+      <h3 className="text-gray-500 text-sm">{title}</h3>
+      <p
+        className={`text-2xl font-bold ${
+          alert ? textColorMap[alertColor] : "text-gray-800"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+};
 
 export default InventoryManagement;
