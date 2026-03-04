@@ -254,7 +254,7 @@ export default function TransactionDetailModal({
           </div>
         </div>
       ) : showRefundForm ? (
-        <div className="space-y-3 mt-4 border-t pt-4 max-h-96 overflow-y-auto">
+        <div className="space-y-3 mt-4 border-t pt-4 max-h-96 overflow-y-auto w-full max-w-3xl">
           <h3 className="font-semibold text-orange-700">REFUND TRANSACTION</h3>
           
           {/* Refund Type Selection */}
@@ -297,43 +297,45 @@ export default function TransactionDetailModal({
 
           {/* Partial Refund */}
           {refundType === "partial" && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">Select Items to Refund:</label>
-              <div className="bg-gray-50 p-2 rounded space-y-2 text-sm">
-                {remainingItems.map((it) => {
-                  const qty = refundQuantities[it.menu_id] || 0;
-                  const maxQty = it.remaining;
-                  return (
-                    <div key={it.menu_id} className="flex items-center justify-between">
-                      <span>{it.product_name || it.menu_id} (x{it.remaining})</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setRefundQuantities(prev => ({
-                            ...prev,
-                            [it.menu_id]: Math.max(0, qty - 1)
-                          }))}
-                          className="bg-gray-300 px-2 py-1 rounded hover:bg-gray-400"
-                          disabled={maxQty === 0}
-                        >
-                          −
-                        </button>
-                        <span className="w-6 text-center">{qty}</span>
-                        <button
-                          onClick={() => setRefundQuantities(prev => ({
-                            ...prev,
-                            [it.menu_id]: Math.min(maxQty, qty + 1)
-                          }))}
-                          className="bg-gray-300 px-2 py-1 rounded hover:bg-gray-400"
-                          disabled={maxQty === 0}
-                        >
-                          +
-                        </button>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 space-y-2">
+                <label className="block text-sm font-medium">Select Items to Refund:</label>
+                <div className="bg-gray-50 p-2 rounded space-y-2 text-sm">
+                  {remainingItems.map((it) => {
+                    const qty = refundQuantities[it.menu_id] || 0;
+                    const maxQty = it.remaining;
+                    return (
+                      <div key={it.menu_id} className="flex items-center justify-between">
+                        <span>{it.product_name || it.menu_id} (x{it.remaining})</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setRefundQuantities(prev => ({
+                              ...prev,
+                              [it.menu_id]: Math.max(0, qty - 1)
+                            }))}
+                            className="bg-gray-300 px-2 py-1 rounded hover:bg-gray-400"
+                            disabled={maxQty === 0}
+                          >
+                            −
+                          </button>
+                          <span className="w-6 text-center">{qty}</span>
+                          <button
+                            onClick={() => setRefundQuantities(prev => ({
+                              ...prev,
+                              [it.menu_id]: Math.min(maxQty, qty + 1)
+                            }))}
+                            className="bg-gray-300 px-2 py-1 rounded hover:bg-gray-400"
+                            disabled={maxQty === 0}
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-              <div className="bg-gray-100 p-2 rounded">
+              <div className="flex-1 bg-gray-100 p-2 rounded">
                 <p className="text-sm font-semibold">Calculated Refund: ₱ {(
                   items.reduce((sum, it) => sum + ((refundQuantities[it.menu_id] || 0) * it.price), 0)
                 ).toFixed(2)}</p>
