@@ -41,7 +41,23 @@ export default function MenuManagementUI() {
 
   // fetch only archived products
   const fetchArchivedItems = async () => {
-    await fetchProducts('archived');
+    console.log("fetchArchivedItems called");
+    // call dedicated archived endpoint
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const response = await fetch(`${API_BASE}/menu/archived`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch archived items");
+      const data = await response.json();
+      setMenuItems(data);
+    } catch (err) {
+      console.error("fetchArchivedItems error", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // generic product fetcher, can request specific status
@@ -55,6 +71,7 @@ export default function MenuManagementUI() {
         return;
       }
       const statusParam = status || (activeTab === 'Archived' ? 'archived' : 'active');
+      console.log("fetchProducts using statusParam=", statusParam);
       const response = await fetch(`${API_BASE}/menu?menu_status=${statusParam}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -103,8 +120,11 @@ export default function MenuManagementUI() {
   const handleAddItem = (item) => {
     console.log("New Item:", item);
     // Refresh products after adding new item using same status filter as current tab
-    const statusParam = activeTab === 'Archived' ? 'archived' : 'active';
-    fetchProducts(statusParam);
+    if (activeTab === 'Archived') {
+      fetchArchivedItems();
+    } else {
+      fetchProducts('active');
+    }
   };
 
   const handleEdit = (item) => {
@@ -159,6 +179,8 @@ export default function MenuManagementUI() {
             key={t}
             onClick={() => {
               setActiveTab(t);
+              setActiveCategory("All Items"); // clear category filter when switching tabs
+              setSearchTerm(""); // reset search input as well
               if (t === 'Declined') {
                 fetchDeclinedItems();
               } else if (t === 'Archived') {
