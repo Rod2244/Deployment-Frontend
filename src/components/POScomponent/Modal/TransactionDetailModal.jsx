@@ -60,7 +60,7 @@ export default function TransactionDetailModal({
   const remainingTotalAmount = remainingItems.reduce((s, it) => s + (it.remaining * it.price), 0);
 
   return (
-    <div className="space-y-4 w-full max-w-4xl">
+    <div className="space-y-4 w-full max-w-5xl">
       {/* header info */}
       <div className="border-b pb-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
@@ -159,7 +159,7 @@ export default function TransactionDetailModal({
               {voidType === 'partial' && (
                 <div className="space-y-3">
                   <label className="block text-sm font-medium">Select items to void:</label>
-                  <div className="bg-white p-3 rounded border space-y-2 text-sm max-h-48 overflow-y-auto">
+                  <div className="bg-white p-3 rounded border space-y-2 text-sm max-h-64 overflow-y-auto">
                     {remainingItems.map((it) => {
                       const qty = voidQuantities[it.menu_id] || 0;
                       const maxQty = it.remaining;
@@ -276,7 +276,7 @@ export default function TransactionDetailModal({
           </div>
         </div>
       ) : showRefundForm ? (
-        <div className="space-y-4 mt-4 border-t pt-4 bg-orange-50 p-4 rounded-lg max-h-96 overflow-y-auto">
+        <div className="space-y-4 mt-4 border-t pt-4 bg-orange-50 p-4 rounded-lg">
           <h3 className="font-semibold text-orange-700 text-lg">REFUND TRANSACTION</h3>
           
           <div className="flex flex-col lg:flex-row gap-6">
@@ -324,7 +324,7 @@ export default function TransactionDetailModal({
               {refundType === "partial" && (
                 <div className="space-y-3">
                   <label className="block text-sm font-medium">Select Items to Refund:</label>
-                  <div className="bg-white p-3 rounded border space-y-2 text-sm max-h-48 overflow-y-auto">
+                  <div className="bg-white p-3 rounded border space-y-2 text-sm max-h-64 overflow-y-auto">
                     {remainingItems.map((it) => {
                       const qty = refundQuantities[it.menu_id] || 0;
                       const maxQty = it.remaining;
