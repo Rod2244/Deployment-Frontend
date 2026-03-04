@@ -207,6 +207,7 @@ export default function TransactionDetailModal({
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Enter reason for voiding..."
+                  autoComplete="off"
                 />
               </div>
               <div>
@@ -217,6 +218,7 @@ export default function TransactionDetailModal({
                   value={adminPin}
                   onChange={(e) => setAdminPin(e.target.value)}
                   placeholder="Enter admin PIN"
+                  autoComplete="off"
                 />
                 <p className="text-xs text-gray-500 mt-1">*Only admins can approve void*</p>
               </div>
@@ -381,6 +383,7 @@ export default function TransactionDetailModal({
                   value={refundReason}
                   onChange={(e) => setRefundReason(e.target.value)}
                   placeholder="Enter reason for refund..."
+                  autoComplete="off"
                 />
               </div>
               <div>
@@ -391,6 +394,7 @@ export default function TransactionDetailModal({
                   value={refundAdminPin}
                   onChange={(e) => setRefundAdminPin(e.target.value)}
                   placeholder="Enter admin PIN"
+                  autoComplete="off"
                 />
               </div>
 
