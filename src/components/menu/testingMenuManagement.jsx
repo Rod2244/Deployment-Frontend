@@ -235,7 +235,7 @@ export default function MenuManagementUI() {
           <p className="text-center col-span-4 text-gray-500 py-10">Loading...</p>
         ) : error ? (
           <p className="text-center col-span-4 text-red-500 py-10">Error: {error}</p>
-        ) : activeTab === 'Menu List' ? (
+        ) : activeTab === 'Menu List' || activeTab === 'Archived' ? (
           filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <div key={item.product_id} className="bg-white shadow-md p-4 rounded-xl overflow-hidden flex flex-col h-full">
