@@ -85,8 +85,10 @@ export default function CashierManagement() {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          full_name: updatedCashier.full_name,
+          first_name: updatedCashier.first_name,
+          last_name: updatedCashier.last_name,
           username: updatedCashier.username,
+          contact_number: updatedCashier.contact_number,
         }),
       });
 
@@ -96,7 +98,7 @@ export default function CashierManagement() {
       setCashiers(prev =>
         prev.map(c =>
           c.id === updatedCashier.id
-            ? { ...c, full_name: updatedCashier.full_name, username: updatedCashier.username }
+            ? { ...c, first_name: updatedCashier.first_name, last_name: updatedCashier.last_name, username: updatedCashier.username, contact_number: updatedCashier.contact_number }
             : c
         )
       );
