@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useAlert } from "@/context/AlertContext";
 import { X, UserPlus } from "lucide-react";
+import API_BASE_URL from '../../config/api';
 
 export default function EditUserModal({ isOpen, onClose, user, role, onUpdate }) {
   const [branches, setBranches] = useState([]);
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const { error: alertError, success } = useAlert();
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -98,6 +101,7 @@ export default function EditUserModal({ isOpen, onClose, user, role, onUpdate })
       onClose();
     } catch (err) {
       setErrorMsg(err.message);
+      alertError("Error", err.message);
     } finally {
       setLoadingSubmit(false);
     }
