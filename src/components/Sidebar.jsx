@@ -1,6 +1,6 @@
 import React from 'react';
 import { LogOut } from 'lucide-react';
-import logo from '../assets/logo1.png'; // Optional: if you want to use an image logo instead of text
+import logo from '../assets/logo2.png'; // Optional: if you want to use an image logo instead of text
 
 const Sidebar = ({
   logoTitle = "AppTitle",
