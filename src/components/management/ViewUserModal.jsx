@@ -37,9 +37,8 @@ export default function ViewUserModal({ isOpen, onClose, user, onEdit }) {
     value === null || value === undefined || value === "" ? "N/A" : value;
 
   const statusColors = {
-    Active: "bg-green-100 text-green-700",
-    Inactive: "bg-red-100 text-red-700",
-    Suspended: "bg-orange-100 text-orange-700",
+    Activate: "bg-green-100 text-green-700",
+    Deactivate: "bg-red-100 text-red-700",
   };
 
   const roleColors = {
@@ -81,13 +80,13 @@ export default function ViewUserModal({ isOpen, onClose, user, onEdit }) {
           <h3 className="text-gray-600 font-semibold mb-3">Basic Information</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm">
             <span className="text-gray-500">Full Name:</span>
-            <span className="font-medium">{displayValue(userData.name)}</span>
+            <span className="font-medium">{displayValue(userData.first_name)} {displayValue(userData.last_name)}</span>
 
             <span className="text-gray-500">Username:</span>
             <span className="font-medium">{displayValue(userData.username)}</span>
 
-            <span className="text-gray-500">Contact:</span>
-            <span className="font-medium">{displayValue(userData.contact)}</span>
+            <span className="text-gray-500">Contact Number:</span>
+            <span className="font-medium">{displayValue(userData.contact_number)}</span>
           </div>
         </div>
 
@@ -118,10 +117,10 @@ export default function ViewUserModal({ isOpen, onClose, user, onEdit }) {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm">
             <span className="text-gray-500">Created At:</span>
-            <span className="font-medium">{displayValue(userData.createdAt)}</span>
+            <span className="font-medium">{displayValue(userData.created_at)}</span>
 
             <span className="text-gray-500">Created By:</span>
-            <span className="font-medium">{displayValue(userData.createdBy)}</span>
+            <span className="font-medium">{displayValue(userData.created_by)}</span>
           </div>
         </div>
 

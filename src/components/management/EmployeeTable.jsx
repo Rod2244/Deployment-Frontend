@@ -273,7 +273,7 @@ export default function UserList({ type }) {
 
                 return (
                   <tr key={userId} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">{user.name}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">{user.first_name} {user.last_name}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.branch || "—"}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.username}</td>
                     <td className="px-6 py-4">
