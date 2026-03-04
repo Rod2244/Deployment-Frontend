@@ -337,7 +337,11 @@ export default function MenuManagementUI() {
         onClose={() => setIsEditOpen(false)}
         onSaved={() => {
           // refresh lists after save
-          refreshProducts();
+          if (activeTab === 'Archived') {
+            fetchArchivedItems();
+          } else {
+            fetchProducts('active');
+          }
           fetchDeclinedItems();
           setIsEditOpen(false);
         }}
