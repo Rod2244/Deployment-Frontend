@@ -40,7 +40,8 @@ export default function MenuManagement() {
   // ------------------- FETCH APPROVED MENU ITEMS -------------------
   const fetchMenuItems = async () => {
     try {
-      const res = await fetch(API_MENU, {
+      // include archived items for admin view
+      const res = await fetch(`${API_MENU}?showArchived=1`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch menu items");
