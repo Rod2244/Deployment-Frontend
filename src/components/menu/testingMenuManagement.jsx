@@ -57,7 +57,7 @@ export default function MenuManagementUI() {
 
   // Fetch products from API
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProducts = async (status = null) => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
@@ -70,8 +70,8 @@ export default function MenuManagementUI() {
         // debug: log token presence (never log full token in production)
         console.debug("fetchProducts: token present", !!token);
 
-        // determine which menu_status we want based on the current tab
-        const statusParam = activeTab === 'Archived' ? 'archived' : 'active';
+        // determine which menu_status we want to request
+        const statusParam = status || (activeTab === 'Archived' ? 'archived' : 'active');
         const response = await fetch(`${API_BASE}/menu?menu_status=${statusParam}`, {
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -104,7 +104,7 @@ export default function MenuManagementUI() {
       }
     };
 
-    fetchProducts();
+    fetchProducts('active');
     fetchCategories();
   }, []);
 
@@ -120,17 +120,9 @@ export default function MenuManagementUI() {
 
   const handleAddItem = (item) => {
     console.log("New Item:", item);
-    // Refresh products after adding new item
-    const token = localStorage.getItem("token");
+    // Refresh products after adding new item using same status filter as current tab
     const statusParam = activeTab === 'Archived' ? 'archived' : 'active';
-    fetch(`${API_BASE}/menu?menu_status=${statusParam}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setMenuItems(data))
-      .catch((err) => console.error(err));
+    fetchProducts(statusParam);
   };
 
   const handleEdit = (item) => {
@@ -187,8 +179,10 @@ export default function MenuManagementUI() {
               setActiveTab(t);
               if (t === 'Declined') {
                 fetchDeclinedItems();
+              } else if (t === 'Archived') {
+                fetchProducts('archived');
               } else {
-                fetchProducts();
+                fetchProducts('active');
               }
             }}
             className={`px-4 py-2 rounded ${activeTab === t ? 'bg-green-600 text-white' : 'bg-white border'}`}
