@@ -63,7 +63,7 @@ const DashboardLayout = () => {
           />
           <StatCard
             icon={AlertCircle}
-            title="Low Stock Items"
+            title="Low & No Stock Items"
             value={lowStock}
             bgColor="bg-red-100"
             textColor="text-red-600"
