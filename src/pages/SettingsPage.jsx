@@ -84,7 +84,7 @@ export default function SimpleSettings() {
             {/* Only show Pin Code if user is admin */}
             {roleId === 2 && (
               <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Pin Code:</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Void Pin Code:</label>
                 <input
                   type="text"
                   value={pinCode}
