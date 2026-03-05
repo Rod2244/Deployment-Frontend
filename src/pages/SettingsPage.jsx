@@ -22,7 +22,8 @@ export default function SimpleSettings() {
 
         // Only fetch pin code if admin
         if (payload.role_id === 2) {
-          const res = await fetch(`${API_BASE_URL}api/admin/pin-code`, {
+          // admin only endpoint
+          const res = await fetch(`${API_BASE_URL}/api/admin/pin-code`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (!res.ok) throw new Error('Failed to fetch pin code');
@@ -31,7 +32,10 @@ export default function SimpleSettings() {
         }
       } catch (error) {
         console.error('Error fetching user info / pin code:', error);
-        setPinCode('N/A');
+        // only show N/A if admin tried to load pin
+        if (roleId === 2) {
+          setPinCode('N/A');
+        }
       }
     };
 
