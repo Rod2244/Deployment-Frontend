@@ -140,7 +140,7 @@ export default function Records () {
                                 <td className="px-4 py-3">₱ {Number(record.total_amount).toFixed(2)}</td>
                                 <td className="px-4 py-3">₱ {Number(record.amount_paid).toFixed(2)}</td>
                                 <td className="px-4 py-3 capitalize">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${record.status === 'completed' ? 'bg-green-100 text-green-800' : record.status === 'voided' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${record.status.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' : (record.status.toLowerCase() === 'voided' || record.status === 'Partial') ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                                         {record.status}
                                     </span>
                                 </td>
