@@ -1,4 +1,5 @@
 import React from "react";
+import { useAlert } from '../../../context/AlertContext';
 import API_BASE_URL from '../../../config/api';
 
 export default function TransactionDetailModal({
@@ -13,6 +14,8 @@ export default function TransactionDetailModal({
     transaction,
     items,
   } = data;
+
+  const { success, error: alertError } = useAlert();
 
   const [showVoidForm, setShowVoidForm] = React.useState(false);
   const [voidType, setVoidType] = React.useState("full");
@@ -262,9 +265,11 @@ export default function TransactionDetailModal({
                       const data = await res.json();
                       if (!res.ok) throw new Error(data.message || "Void failed");
                       const newStatus = data.status || 'Voided';
+                      success("Void Successful", "Transaction has been voided successfully.");
                       onVoid && onVoid(transaction.transaction_id, newStatus);
                       onClose();
                     } catch (err) {
+                      alertError("Void Failed", err.message);
                       setVoidError(err.message);
                     } finally {
                       setSubmittingVoid(false);
