@@ -79,7 +79,7 @@ export default function Login() {
   return (
     <div className="w-full min-h-screen flex">
       {/* Left Info Panel */}
-      <div className="w-1/2 bg-emerald-700 text-white flex flex-col items-center justify-center p-12 relative rounded-r-2xl">
+      <div className="w-1/2 bg-green-800 text-white flex flex-col items-center justify-center p-12 relative rounded-r-2xl">
         <div className="text-center space-y-6">
           <h1 className="text-3xl font-bold">Point of Sale</h1>
           <div className="w-2 h-2 bg-white rounded-full mx-auto"></div>
