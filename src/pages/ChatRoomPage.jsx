@@ -13,6 +13,7 @@ export default function ChatRoom() {
   const [attachmentName, setAttachmentName] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -220,9 +221,6 @@ export default function ChatRoom() {
                 </p>
               </div>
             </div>
-            <button className="p-2 text-white hover:bg-white/20 rounded-lg transition">
-              <LogOut className="w-5 h-5" />
-            </button>
           </header>
 
           {/* Messages Area */}
@@ -258,7 +256,7 @@ export default function ChatRoom() {
                           src={`${API_BASE_URL}${msg.attachment_url}`}
                           alt="attachment"
                           className="mt-2 max-w-xs rounded cursor-pointer"
-                          onClick={() => window.open(`${API_BASE_URL}${msg.attachment_url}`, '_blank')}
+                          onClick={() => setSelectedImage(`${API_BASE_URL}${msg.attachment_url}`)}
                         />
                       )}
                       {msg.attachment_url && msg.message_type === 'file' && (
@@ -373,6 +371,25 @@ export default function ChatRoom() {
           </div>
         </div>
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="relative max-w-4xl max-h-full p-4">
+            <img
+              src={selectedImage}
+              alt="Full size"
+              className="max-w-full max-h-full object-contain"
+            />
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold hover:bg-gray-200"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
