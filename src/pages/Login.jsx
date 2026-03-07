@@ -98,13 +98,11 @@ export default function Login() {
       {/* Right Login Panel */}
       <div className="w-1/2 bg-gray-100 flex flex-col items-center justify-center p-12">
         <div className="w-full max-w-sm">
-          <div className="w-32 h-32 mx-auto mb-6 flex items-center justify-center overflow-hidden">
-            {logo ? (
-              <img src={logo} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-16 h-16 text-gray-500" />
-            )}
-          </div>
+          {logo ? (
+            <img src={logo} alt="Profile" className="w-32 h-auto mx-auto mb-6" />
+          ) : (
+            <User className="w-16 h-16 text-gray-500 mx-auto mb-6" />
+          )}
           <h2 className="text-center text-3xl font-bold mb-4 text-gray-800">Food Paradise</h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
