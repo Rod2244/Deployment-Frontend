@@ -273,12 +273,6 @@ export default function TransactionDetailModal({
                 >
                   {submittingVoid ? 'Processing...' : 'Confirm Void'}
                 </button>
-                <button
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 font-bold py-3 rounded-lg"
-                  onClick={() => setShowVoidForm(false)}
-                >
-                  Cancel
-                </button>
               </div>
             </div>
           </div>
