@@ -112,7 +112,7 @@ const DashboardContent = () => {
       .catch((err) => console.error('Failed to fetch dashboard stats', err));
 
     // fetch top menu sales by branch
-    fetch(`${API_BASE_URL}/api/sales-superadmin/top-menu-sales`, {
+    fetch(`${API_BASE_URL}/api/sales-admin/top-products`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
