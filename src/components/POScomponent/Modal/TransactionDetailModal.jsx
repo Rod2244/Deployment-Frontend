@@ -44,8 +44,6 @@ export default function TransactionDetailModal({
   const status = transaction.status;
   const createdAt = new Date(transaction.created_at);
   const minutesElapsed = (Date.now() - createdAt.getTime()) / 60000;
-  const voidAllowed = (status === 'Completed' || status === 'Partial Voided') && minutesElapsed <= 60 && remainingTotalCount > 0;
-  const isVoidedOrRefunded = status === 'Voided' || status === 'Refunded';
 
   // compute remaining quantities (for voids, quantity is already reduced by previous voids)
   const remainingItems = items.map(it => {
@@ -54,6 +52,9 @@ export default function TransactionDetailModal({
   });
   const remainingTotalCount = remainingItems.reduce((s, it) => s + it.remaining, 0);
   const remainingTotalAmount = remainingItems.reduce((s, it) => s + (it.remaining * it.price), 0);
+
+  const voidAllowed = (status === 'Completed' || status === 'Partial') && minutesElapsed <= 60 && remainingTotalCount > 0;
+  const isVoidedOrRefunded = status === 'Voided' || status === 'Refunded';
 
   return (
     <div className="space-y-4 w-full max-w-5xl">
