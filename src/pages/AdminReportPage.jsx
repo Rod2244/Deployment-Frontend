@@ -29,6 +29,8 @@ export default function AdminReportsPage() {
   const [paymentData, setPaymentData] = useState([]); // cash/gcash breakdown
   const [topProducts, setTopProducts] = useState([]); // product ranking
   const [voidTracking, setVoidTracking] = useState([]); // void tracking data
+  const [voidPage, setVoidPage] = useState(1); // current page for void tracking
+  const itemsPerPage = 5; // items per page for void tracking
 
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -158,6 +160,7 @@ export default function AdminReportsPage() {
         setPaymentData(pie);
         setTopProducts(topData);
         setVoidTracking(voidData);
+        setVoidPage(1);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching sales data:", err);
@@ -431,7 +434,7 @@ export default function AdminReportsPage() {
             </tr>
           </thead>
           <tbody>
-            {voidTracking.map((item, idx) => (
+            {voidTracking.slice((voidPage - 1) * itemsPerPage, voidPage * itemsPerPage).map((item, idx) => (
               <tr key={idx} className="hover:bg-gray-100">
                 <td className="p-2 border-b">{item.transaction_number}</td>
                 <td className="p-2 border-b">{item.cashier}</td>
@@ -443,6 +446,24 @@ export default function AdminReportsPage() {
             ))}
           </tbody>
         </table>
+        {/* Pagination for Void Tracking */}
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={() => setVoidPage(Math.max(1, voidPage - 1))}
+            disabled={voidPage === 1}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          >
+            Previous
+          </button>
+          <span>Page {voidPage} of {Math.ceil(voidTracking.length / itemsPerPage)}</span>
+          <button
+            onClick={() => setVoidPage(Math.min(Math.ceil(voidTracking.length / itemsPerPage), voidPage + 1))}
+            disabled={voidPage === Math.ceil(voidTracking.length / itemsPerPage)}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
