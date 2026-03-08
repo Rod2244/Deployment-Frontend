@@ -17,20 +17,22 @@ export default function Records () {
     const [detailLoading, setDetailLoading] = useState(false);
     const { error } = useAlert();
 
-    useEffect(() => {
+    const fetchTransactions = async () => {
         const token = localStorage.getItem("token");
-        fetch(`${API_BASE_URL}/api/pos/user-transactions`, {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then(res => res.json())
-            .then(data => {
-                setRecords(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Failed to fetch transactions", err);
-                setLoading(false);
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/pos/user-transactions`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
+            const data = await res.json();
+            setRecords(data);
+        } catch (err) {
+            console.error("Failed to fetch transactions", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchTransactions();
+        setLoading(false);
     }, []);
 
     const formatTime = isoString => {
@@ -215,12 +217,8 @@ export default function Records () {
                         data={modalData}
                         onClose={() => setIsModalOpen(false)}
                         onVoid={(txId, status) => {
-                            // use server-confirmed status when updating
-                            setRecords(prev =>
-                                prev.map(r =>
-                                    r.transaction_id === txId ? { ...r, status: status || 'Voided' } : r
-                                )
-                            );
+                            // Refresh data from server to ensure we have the latest status
+                            fetchTransactions();
                             if (modalData && modalData.transaction.transaction_id === txId) {
                                 setModalData({
                                     ...modalData,
@@ -229,12 +227,8 @@ export default function Records () {
                             }
                         }}
                         onRefund={(txId, status) => {
-                            // use server-confirmed status when updating
-                            setRecords(prev =>
-                                prev.map(r =>
-                                    r.transaction_id === txId ? { ...r, status: status || 'Refunded' } : r
-                                )
-                            );
+                            // Refresh data from server to ensure we have the latest status
+                            fetchTransactions();
                             if (modalData && modalData.transaction.transaction_id === txId) {
                                 setModalData({
                                     ...modalData,
