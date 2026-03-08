@@ -347,7 +347,7 @@ export default function AdminReportsPage() {
 
         {/* Payment method pie chart */}
         <div className="bg-white rounded-2xl shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Payment Method Breakdown</h2>
+          <h2 className="text-lg font-semibold mb-4">Transaction's Breakdown</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
