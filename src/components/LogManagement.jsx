@@ -64,6 +64,20 @@ const LogManagement = () => {
 
 
 // --- Helper Functions for Styling ---
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return 'N/A';
+  const date = new Date(timestamp);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+};
+
 const getSeverityStyle = (severity) => {
   switch (severity) {
     case 'Alert':
@@ -183,7 +197,7 @@ const getTypeIcon = (type) => {
             <tbody className="bg-white divide-y divide-gray-100">
               {paginatedLogs.map((log) => (
                 <tr key={log.log_id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-3 whitespace-nowrap text-sm font-mono text-gray-600">{log.timestamp}</td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm font-mono text-gray-600">{formatTimestamp(log.timestamp)}</td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-800 font-semibold flex items-center">
                       {getTypeIcon(log.type)}
                       {log.type}
