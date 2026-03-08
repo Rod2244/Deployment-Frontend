@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { History, Search, Download, Server, Package, Lock } from 'lucide-react';
+import API_BASE_URL from '../config/api';
 
 // --- Main Log Management Component ---
 const LogManagement = () => {
@@ -20,7 +21,7 @@ const LogManagement = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:5200/api/activity-logs/login-logs', {
+        const response = await fetch(`${API_BASE_URL}/api/activity-logs/login-logs`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
