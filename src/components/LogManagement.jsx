@@ -56,6 +56,13 @@ const LogManagement = () => {
     return typeMatch && searchMatch;
   });
 
+  // --- Pagination ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
+  const totalPages = Math.ceil(filteredLogs.length / perPage);
+  const paginatedLogs = filteredLogs.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+
 // --- Helper Functions for Styling ---
 const getSeverityStyle = (severity) => {
   switch (severity) {
@@ -155,7 +162,7 @@ const getTypeIcon = (type) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {filteredLogs.map((log) => (
+              {paginatedLogs.map((log) => (
                 <tr key={log.log_id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-3 whitespace-nowrap text-sm font-mono text-gray-600">{log.timestamp}</td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-800 font-semibold flex items-center">
@@ -181,6 +188,25 @@ const getTypeIcon = (type) => {
           </table>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {filteredLogs.length > perPage && (
+        <div className="flex justify-center items-center space-x-2 mt-4">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >Previous</button>
+          <span className="text-sm">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >Next</button>
+        </div>
+      )}
     </div>
   );
 };
