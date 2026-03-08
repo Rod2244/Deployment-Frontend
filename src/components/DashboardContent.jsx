@@ -15,38 +15,52 @@ const StatCard = ({ title, value, icon: Icon, bgColor, textColor }) => (
 const TopMenuSalesChart = ({ menuSales }) => {
   if (!menuSales || menuSales.length === 0) {
     return (
-      <div className="h-64 bg-gray-50 p-4 rounded-lg shadow flex items-center justify-center">
+      <div className="h-80 bg-gray-50 p-4 rounded-lg shadow flex items-center justify-center">
         <p className="text-gray-500">Loading menu sales data...</p>
       </div>
     );
   }
 
-  // Sort by sales amount descending
-  const sorted = [...menuSales].sort((a, b) => (Number(b.total_sales) || 0) - (Number(a.total_sales) || 0));
+  // Sort by sales amount descending and take top 10
+  const sorted = [...menuSales]
+    .sort((a, b) => (Number(b.total_sales) || 0) - (Number(a.total_sales) || 0))
+    .slice(0, 10);
+  
   const maxSales = Math.max(...sorted.map(m => Number(m.total_sales) || 0));
 
   return (
-    <div className="space-y-3 max-h-96 overflow-y-auto">
-      {sorted.map((item, idx) => {
-        const heightPercent = maxSales > 0 ? (Number(item.total_sales) || 0) / maxSales * 100 : 0;
-        return (
-          <div key={idx} className="flex items-center gap-4">
-            <div className="w-24 text-sm font-medium text-gray-700 truncate">{item.menu_name || 'N/A'}</div>
-            <div className="flex-1 flex items-center gap-2">
-              <div className="w-full bg-gray-200 rounded h-6 overflow-hidden">
+    <div className="w-full h-80 flex flex-col">
+      {/* Y-axis labels and bars */}
+      <div className="flex-1 flex items-end gap-2 px-2 py-4 border-l-2 border-gray-300">
+        {sorted.map((item, idx) => {
+          const heightPercent = maxSales > 0 ? (Number(item.total_sales) || 0) / maxSales * 100 : 0;
+          return (
+            <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+              {/* Bar */}
+              <div className="w-full flex flex-col items-center justify-end" style={{ height: '280px' }}>
                 <div 
-                  className="bg-gradient-to-r from-green-500 to-green-600 h-full transition-all" 
-                  style={{ width: `${heightPercent}%` }}
-                />
+                  className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t transition-all hover:from-green-600 hover:to-green-500 cursor-pointer group relative"
+                  style={{ height: `${heightPercent}%`, minHeight: heightPercent > 0 ? '20px' : '0px' }}
+                  title={`${item.menu_name}: ₱${Number(item.total_sales || 0).toLocaleString()}`}
+                >
+                  {/* Value label on hover */}
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                    ₱{Number(item.total_sales || 0).toLocaleString()}
+                  </div>
+                </div>
               </div>
-              <div className="w-32 text-right">
-                <p className="text-sm font-bold text-gray-900">₱{Number(item.total_sales || 0).toLocaleString()}</p>
-                <p className="text-xs text-gray-500">{item.branch_name || 'All Branches'}</p>
+              
+              {/* Label */}
+              <div className="w-full text-center -mb-1">
+                <p className="text-xs font-semibold text-gray-700 truncate" title={item.menu_name}>
+                  {item.menu_name || 'N/A'}
+                </p>
+                <p className="text-xs text-gray-500">{item.branch_name || 'Branch'}</p>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -112,7 +126,7 @@ const DashboardContent = () => {
       .catch((err) => console.error('Failed to fetch dashboard stats', err));
 
     // fetch top menu sales by branch
-    fetch(`${API_BASE_URL}/api/sales-admin/top-products`, {
+    fetch(`${API_BASE_URL}/api/sales-superadmin/top-menu-sales`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
