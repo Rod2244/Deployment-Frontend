@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { History, Search, Download, Server, Package, Lock, User, UserCheck, UserX, Key } from 'lucide-react';
+import { History, Search, Download, Server, Package, Lock, User, UserCheck, UserX, Key, ShoppingCart, XCircle, RotateCcw } from 'lucide-react';
 import API_BASE_URL from '../config/api';
 
 // --- Main Log Management Component ---
@@ -52,6 +52,7 @@ const LogManagement = () => {
     'Menu': ['menu_item_created', 'menu_item_updated', 'menu_item_deleted'],
     'Inventory': ['inventory_adjustment', 'inventory_add'],
     'Cashier': ['cashier_created', 'cashier_updated', 'cashier_password_reset', 'cashier_activated', 'cashier_deactivated'],
+    'POS': ['transaction_completed', 'transaction_voided', 'transaction_partial_void'],
     'System': ['System']
   };
 
@@ -135,6 +136,12 @@ const getTypeIcon = (type) => {
       return <UserCheck className="w-4 h-4 mr-2 text-green-600" />;
     case 'cashier_deactivated':
       return <UserX className="w-4 h-4 mr-2 text-red-600" />;
+    case 'transaction_completed':
+      return <ShoppingCart className="w-4 h-4 mr-2 text-green-600" />;
+    case 'transaction_voided':
+      return <XCircle className="w-4 h-4 mr-2 text-red-600" />;
+    case 'transaction_partial_void':
+      return <RotateCcw className="w-4 h-4 mr-2 text-orange-600" />;
     case 'System':
       return <Server className="w-4 h-4 mr-2 text-blue-600" />;
     default:
