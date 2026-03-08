@@ -9,7 +9,8 @@ import {
   History, 
   Settings, 
   MessageCircleMore,
-  ChartNoAxesCombined
+  ChartNoAxesCombined,
+  CreditCard
 } from 'lucide-react';
 
 import Sidebar from '../components/Sidebar';
@@ -20,6 +21,7 @@ import MenuManagement from '../components/menu/testingMenuManagement';
 import InventoryManagement from '../components/inventory/testingInventoryManagement';
 import CashierManagement from '../components/cashiers/CashierManagement';
 import LogManagement from '../components/LogManagement';
+import Records from '../components/POScomponent/Records';
 import POS from '../components/POSadminContent';
 import ChatRoomPage from './ChatRoomPage';  // Example additional page
 import AdminReportPage from './AdminReportPage';  // Example additional page
@@ -84,6 +86,7 @@ function AdminDashboardPage() {
     { name: 'Inventory', icon: Warehouse, path: '/admin/inventory' },
     { name: 'Cashiers', icon: Users, path: '/admin/cashiers' },
     { name: 'Reports', icon: ChartNoAxesCombined, path: '/admin/reports' },
+    { name: 'Transactions', icon: CreditCard, path: '/admin/transactions' },
     { name: 'Logs', icon: History, path: '/admin/logs' },
     { name: 'Settings', icon: Settings, path: '/admin/settings' },
   ];
@@ -115,6 +118,9 @@ function AdminDashboardPage() {
         return <CashierManagement openModal={openModal} />;
       case 'Reports':
         return <AdminReportPage openModal={openModal} />;
+      case 'Transactions':
+        return <Records />;
+
       case 'Logs':
         return <LogManagement openModal={openModal} />;
 
