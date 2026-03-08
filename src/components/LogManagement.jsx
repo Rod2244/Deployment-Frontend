@@ -34,10 +34,6 @@ const LogManagement = () => {
 
         const data = await response.json();
         setLogs(data);
-
-        // update log types dynamically
-        const types = new Set(data.map(l => l.activity_type || l.type));
-        setLogTypes(['All', ...types]);
       } catch (err) {
         console.error('Error fetching logs:', err);
         setError(err.message);
@@ -49,13 +45,31 @@ const LogManagement = () => {
     fetchLogs();
   }, []);
 
-  // dynamic log type filters
-  const [logTypes, setLogTypes] = useState(["All", "Security"]);
+  // Define grouped log categories
+  const logCategories = {
+    'All': ['all'],
+    'Security': ['Security', 'login', 'login_failed'],
+    'Menu': ['menu_item_created', 'menu_item_updated', 'menu_item_deleted'],
+    'Inventory': ['inventory_adjustment', 'inventory_add'],
+    'Cashier': ['cashier_created', 'cashier_updated', 'cashier_password_reset', 'cashier_activated', 'cashier_deactivated'],
+    'System': ['System']
+  };
+
+  // Get available categories based on existing logs
+  const getAvailableCategories = () => {
+    const availableTypes = new Set(logs.map(log => log.activity_type || log.type));
+    return Object.keys(logCategories).filter(category => {
+      if (category === 'All') return true;
+      return logCategories[category].some(type => availableTypes.has(type));
+    });
+  };
+
+  const availableCategories = getAvailableCategories();
 
   // --- Filtering Logic ---
   const filteredLogs = logs.filter(log => {
     const logType = log.activity_type || log.type;
-    const typeMatch = activeType === 'All' || logType === activeType;
+    const typeMatch = activeType === 'All' || logCategories[activeType]?.includes(logType);
     const searchMatch = log.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         log.user?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         log.action?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -161,19 +175,19 @@ const getTypeIcon = (type) => {
 
         {/* Log Type Filter Buttons */}
         <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-100">
-            {logTypes.map((type) => {
-                const isActive = activeType === type;
+            {availableCategories.map((category) => {
+                const isActive = activeType === category;
                 return (
                     <button
-                        key={type}
-                        onClick={() => setActiveType(type)}
+                        key={category}
+                        onClick={() => setActiveType(category)}
                         className={`flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                             isActive 
                                 ? 'bg-[#1B5E20] text-white shadow-lg' 
                                 : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-800'
                         }`}
                     >
-                        {type}
+                        {category}
                     </button>
                 );
             })}
