@@ -207,8 +207,6 @@ const getTypeIcon = (type) => {
           </table>
         )}
       </div>
-
-      </div>
     </div>
   );
 };
