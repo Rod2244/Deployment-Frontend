@@ -20,7 +20,7 @@ const LogManagement = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:5200/api/activity/login-logs', {
+        const response = await fetch('http://localhost:5200/api/activity-logs/login-logs', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
