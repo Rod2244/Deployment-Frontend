@@ -145,6 +145,25 @@ const getTypeIcon = (type) => {
 
       {/* 2. Logs Table */}
       <div className="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
+        {/* Pagination Controls at Top Right */}
+        {filteredLogs.length > perPage && (
+          <div className="flex justify-end items-center space-x-2 mb-4">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >Previous</button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >Next</button>
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-6">Loading logs...</div>
         ) : error ? (
@@ -189,24 +208,7 @@ const getTypeIcon = (type) => {
         )}
       </div>
 
-      {/* Pagination Controls */}
-      {filteredLogs.length > perPage && (
-        <div className="flex justify-center items-center space-x-2 mt-4">
-          <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >Previous</button>
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >Next</button>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
