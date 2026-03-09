@@ -1,12 +1,14 @@
 // Simple browser-based printing function
 export const printReceipt = (orderData) => {
-  // Create a new window for printing
-  const printWindow = window.open('', '_blank', 'width=300,height=600');
+  alert("🖨️ Starting print process...");
+  console.log("🖨️ Starting print process...", orderData);
 
-  if (!printWindow) {
-    alert('Please allow popups for printing');
-    return;
-  }
+  // Create an iframe for printing
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
   // Generate receipt HTML
   const receiptHTML = `
@@ -21,7 +23,7 @@ export const printReceipt = (orderData) => {
           line-height: 1.2;
           margin: 0;
           padding: 10px;
-          width: 48mm; /* 58mm paper width minus margins */
+          width: 48mm;
           text-align: center;
         }
         .center { text-align: center; }
@@ -38,6 +40,9 @@ export const printReceipt = (orderData) => {
           border-top: 1px solid #000;
           padding-top: 5px;
           margin-top: 5px;
+        }
+        @media print {
+          body { width: auto; }
         }
       </style>
     </head>
@@ -99,15 +104,28 @@ export const printReceipt = (orderData) => {
     </html>
   `;
 
-  printWindow.document.write(receiptHTML);
-  printWindow.document.close();
+  iframeDoc.open();
+  iframeDoc.write(receiptHTML);
+  iframeDoc.close();
 
   // Wait for content to load then print
-  printWindow.onload = () => {
-    printWindow.print();
-    // Close the window after printing (optional)
+  iframe.onload = () => {
+    console.log("🖨️ Content loaded, calling print...");
+    iframe.contentWindow.print();
+    // Remove iframe after printing
     setTimeout(() => {
-      printWindow.close();
+      document.body.removeChild(iframe);
     }, 1000);
   };
+
+  // Fallback if onload doesn't fire
+  setTimeout(() => {
+    if (document.body.contains(iframe)) {
+      console.log("🖨️ Fallback print call...");
+      iframe.contentWindow.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+    }
+  }, 500);
 };
