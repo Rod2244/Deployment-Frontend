@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChefHat, Utensils, Clock, Star, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
-import logo from '../assets/logo(2).png'; // Ensure you have a logo image in the specified path
+import logo from '../assets/logo3.png'; // Ensure you have a logo image in the specified path
 
 export default function HomePage() {
   const navigate = useNavigate();
