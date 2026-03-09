@@ -105,11 +105,15 @@ export default function ReportPage() {
     const prevRevenue = Number(b.prev_sales || 0);
     const prevDays = Number(b.prev_window_days || 0);
     // compute growth percentage relative to previous period
-    // avoid misleadingly large percentages when previous revenue is tiny
+    // handle edge case when previous sales = 0
     let growthDisplay = 'N/A';
-    if (prevRevenue >= 1) {
+    if (prevRevenue > 0) {
       const g = ((revenue - prevRevenue) / prevRevenue) * 100;
       growthDisplay = `${g.toFixed(1)}%`;
+    } else if (prevRevenue === 0 && revenue > 0) {
+      growthDisplay = '100.0%';
+    } else if (prevRevenue === 0 && revenue === 0) {
+      growthDisplay = '0.0%';
     }
     return {
       branch: b.branch_name,
@@ -139,6 +143,42 @@ export default function ReportPage() {
   ]);
 
   const formatCurrency = (n) => `₱${Number(n || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+  const getPreviousRangeDates = (range) => {
+    const today = new Date();
+    let start = new Date();
+    let end = new Date();
+    if (range === 'daily') {
+      // Previous day
+      start = new Date(today);
+      start.setDate(today.getDate() - 1);
+      end = new Date(start);
+    } else if (range === 'weekly') {
+      // Previous week (7 days before current week)
+      start = new Date(today);
+      start.setDate(today.getDate() - 13);
+      end = new Date(today);
+      end.setDate(today.getDate() - 7);
+    } else if (range === 'monthly') {
+      // Previous month
+      start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      end = new Date(today.getFullYear(), today.getMonth(), 0);
+    } else if (range === 'quarterly') {
+      // Previous quarter
+      const currentQuarter = Math.floor(today.getMonth() / 3);
+      const prevQuarter = currentQuarter - 1;
+      const prevYear = prevQuarter < 0 ? today.getFullYear() - 1 : today.getFullYear();
+      const prevQuarterMonth = prevQuarter < 0 ? 9 : prevQuarter * 3;
+      start = new Date(prevYear, prevQuarterMonth, 1);
+      end = new Date(prevYear, prevQuarterMonth + 3, 0);
+    } else if (range === 'yearly') {
+      // Previous year
+      start = new Date(today.getFullYear() - 1, 0, 1);
+      end = new Date(today.getFullYear() - 1, 11, 31);
+    }
+    const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return { startDate: fmt(start), endDate: fmt(end) };
+  };
 
   const getRangeDates = (range) => {
     const today = new Date();
@@ -188,16 +228,46 @@ export default function ReportPage() {
         });
         if (!res.ok) throw new Error('Failed to fetch KPIs');
         const data = await res.json();
+        // Fetch previous period data for growth calculation
+        const { startDate: prevStart, endDate: prevEnd } = getPreviousRangeDates(dateRange);
+        let prevData = null;
+        try {
+          const prevRes = await fetch(`${API_BASE_URL}/api/sales-superadmin/kpis?startDate=${prevStart}&endDate=${prevEnd}${branchParam}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (prevRes.ok) {
+            prevData = await prevRes.json();
+          }
+        } catch (err) {
+          console.error('Failed to fetch previous KPIs', err);
+        }
+        
+        // Calculate sales growth
+        let salesGrowth = 'N/A';
+        if (prevData && prevData.total_sales !== undefined) {
+          const currentSales = Number(data.total_sales || 0);
+          const prevSales = Number(prevData.total_sales || 0);
+          if (prevSales > 0) {
+            const growth = ((currentSales - prevSales) / prevSales) * 100;
+            salesGrowth = `${growth.toFixed(1)}%`;
+          } else if (prevSales === 0 && currentSales > 0) {
+            salesGrowth = '100.0%';
+          } else {
+            salesGrowth = '0.0%';
+          }
+        }
+        
         // Map API response to card layout
         // Order: Gross Sales → Voided Sales → Total Sales (Net), then other KPIs
         const cards = [
           { title: 'Gross Sales', value: formatCurrency(data.gross_sales), change: '', icon: PhilippinePeso, color: 'bg-blue-100 text-blue-600' },
           { title: 'Voided Sales', value: formatCurrency(data.voided_sales), change: '', icon: PhilippinePeso, color: 'bg-red-100 text-red-600' },
           { title: 'Total Sales', value: formatCurrency(data.total_sales), change: `(Gross - Voided)`, icon: PhilippinePeso, color: 'bg-green-100 text-green-600' },
-          { title: 'Total Transactions', value: data.transaction_count?.toString() || '0', change: '', icon: BarChart3, color: 'bg-purple-100 text-purple-600' },
+          { title: 'Sales Growth', value: salesGrowth, change: `vs Previous ${dateRange.charAt(0).toUpperCase() + dateRange.slice(1)}`, icon: TrendingUp, color: 'bg-purple-100 text-purple-600' },
+          { title: 'Total Transactions', value: data.transaction_count?.toString() || '0', change: '', icon: BarChart3, color: 'bg-indigo-100 text-indigo-600' },
           { title: 'Average Order Value', value: formatCurrency(data.avg_order_value), change: '(Total Sales ÷ Orders)', icon: TrendingUp, color: 'bg-orange-100 text-orange-600' },
           { title: 'Active Branches', value: data.active_branches?.toString() || '0', change: '', icon: Package, color: 'bg-pink-100 text-pink-600' },
-          { title: 'Avg Transactions/Day', value: Number(data.avg_transactions_per_day).toFixed(2), change: '', icon: Users, color: 'bg-indigo-100 text-indigo-600' },
+          { title: 'Avg Transactions/Day', value: Number(data.avg_transactions_per_day).toFixed(2), change: '', icon: Users, color: 'bg-teal-100 text-teal-600' },
         ];
         setKpiCards(cards);
       } catch (err) {
@@ -572,9 +642,12 @@ export default function ReportPage() {
                     {
                       (() => {
                         const raw = row.growth;
-                        const num = parseFloat(String(raw).replace('%',''));
+                        let num = NaN;
+                        if (raw !== 'N/A') {
+                          num = parseFloat(raw.replace('%', ''));
+                        }
                         let colorClass = 'text-gray-600';
-                        if (Number.isFinite(num)) {
+                        if (!isNaN(num)) {
                           if (num > 0) colorClass = 'text-green-600';
                           else if (num < 0) colorClass = 'text-red-600';
                           else colorClass = 'text-gray-600';
