@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAlert } from "@/context/AlertContext";
-import API_BASE_URL from '../../../config/api';
+import { printReceipt } from '../../../utils/printUtils';
 
 export default function ReceiptModal({
   transactionId,
@@ -22,46 +22,40 @@ export default function ReceiptModal({
   }, []);
 
   const handlePrint = async () => {
-    console.log("🖨️ Starting print process...");
+    console.log("🖨️ Starting frontend print via QZ Tray...");
     setIsPrinting(true);
     
-    const payload = {
-      transactionId,
-      transactionNumber,
-      cart,
-      total,
-      change,
+    // Format data for QZ Tray printing
+    const orderData = {
       date: new Date().toLocaleString(),
+      orderId: transactionNumber,
+      orderType: orderType || 'dine-in',
+      paymentMethod: "Cash",
+      given: total + change, // amountPaid = total + change
+      change: change,
+      total: total,
+      cart: cart.map(item => ({
+        qty: item.qty || item.quantity || 1,
+        item: item.item || item.product_name || "Unknown Item",
+        price: item.price || 0
+      }))
     };
 
     try {
-      console.log("📤 Sending print request to backend...", payload);
-      const res = await fetch(`${API_BASE_URL}/api/print-receipt`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      console.log("📤 Sending to QZ Tray (local printer)...", orderData);
+      await printReceipt(orderData);
+      
+      console.log("✅ Print successful");
+      setShowSuccess(true);
+      setIsPrinting(false);
 
-      const data = await res.json();
-      console.log("📥 Print response:", data);
-
-      if (data.success) {
-        console.log("✅ Print successful");
-        setShowSuccess(true);
-        setIsPrinting(false);
-
-        // ✅ Auto close popup + modal after 2 seconds
-        setTimeout(() => {
-          setShowSuccess(false);
-          onClose();
-        }, 2000);
-      } else {
-        console.error("❌ Print failed:", data.message);
-        setIsPrinting(false);
-        error("Printer Error", data.message ? `Printer error: ${data.message}` : "Failed to print receipt.");
-      }
+      // ✅ Auto close popup + modal after 2 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+        onClose();
+      }, 2000);
     } catch (err) {
-      console.error("❌ Print request failed:", err);
+      console.error("❌ Print failed:", err);
       setIsPrinting(false);
       error("Print Failed", "Failed to print receipt: " + err.message);
     }
