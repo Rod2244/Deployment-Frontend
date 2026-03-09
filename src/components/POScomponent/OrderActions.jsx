@@ -19,12 +19,15 @@ export default function OrderActions({ orderItems, orderType, discountType = "No
     setShowCheckout(true);
   };
 
-  const handleProceed = async (orderData) => {
-    setShowCheckout(false);
+  const handleProceed = async (orderData) => {    console.log("🛒 Checkout proceeding with data:", orderData);    setShowCheckout(false);
     setShowPrinting(true);
 
-    // Print the receipt using browser print
-    printReceipt(orderData);
+    // Print the receipt using QZ Tray
+    try {
+      await printReceipt(orderData);
+    } catch (err) {
+      console.error("Printing failed:", err);
+    }
   
     // Clear items and reset discount when checkout is completed
     if (onOrderComplete) {

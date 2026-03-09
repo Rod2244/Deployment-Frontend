@@ -52,6 +52,7 @@ export default function Checkout({ orderItems = [], orderType, discountType = "N
       }))
     };
 
+    console.log("💰 Checkout data prepared:", orderData);
     onProceed && onProceed(orderData);
   };
 
