@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Calendar, Filter, TrendingUp, PhilippinePeso, Package, Users, BarChart3 } from 'lucide-react';
+import { Download, Filter, TrendingUp, PhilippinePeso, Package, Users, BarChart3 } from 'lucide-react';
 import API_BASE_URL from '../config/api';
 import {
   LineChart,
@@ -185,12 +185,12 @@ export default function ReportPage() {
         const data = await res.json();
         // Map API response to card layout
         const cards = [
-          { title: 'Total Revenue', value: formatCurrency(data.total_sales), change: '', icon: PhilippinePeso, color: 'bg-green-100 text-green-600' },
-          { title: 'Total Transactions', value: data.transaction_count?.toString() || '0', change: '', icon: BarChart3, color: 'bg-blue-100 text-blue-600' },
-          { title: 'Average Order Value', value: formatCurrency(data.avg_order_value), change: '', icon: TrendingUp, color: 'bg-purple-100 text-purple-600' },
-          { title: 'Active Branches', value: data.active_branches?.toString() || '0', change: '', icon: Package, color: 'bg-orange-100 text-orange-600' },
-          { title: 'Avg Transactions/Day', value: Number(data.avg_transactions_per_day).toFixed(2), change: '', icon: Users, color: 'bg-pink-100 text-pink-600' },
-          { title: 'Month-to-Date', value: `${data.month_to_date_days} days`, change: '', icon: Calendar, color: 'bg-indigo-100 text-indigo-600' },
+          { title: 'Total Sales', value: formatCurrency(data.total_sales), change: '', icon: PhilippinePeso, color: 'bg-green-100 text-green-600' },
+          { title: 'Gross Sales', value: formatCurrency(data.gross_sales), change: '', icon: PhilippinePeso, color: 'bg-blue-100 text-blue-600' },
+          { title: 'Total Transactions', value: data.transaction_count?.toString() || '0', change: '', icon: BarChart3, color: 'bg-purple-100 text-purple-600' },
+          { title: 'Average Order Value', value: formatCurrency(data.avg_order_value), change: '', icon: TrendingUp, color: 'bg-orange-100 text-orange-600' },
+          { title: 'Active Branches', value: data.active_branches?.toString() || '0', change: '', icon: Package, color: 'bg-pink-100 text-pink-600' },
+          { title: 'Avg Transactions/Day', value: Number(data.avg_transactions_per_day).toFixed(2), change: '', icon: Users, color: 'bg-indigo-100 text-indigo-600' },
         ];
         setKpiCards(cards);
       } catch (err) {
