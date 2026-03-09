@@ -651,7 +651,7 @@ export default function ReportPage() {
 
                   return paginatedData.map((transaction, idx) => (
                     <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">#{transaction.transaction_id}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">#{transaction.transaction_number}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{transaction.branch_name}</td>
                       <td className="px-4 py-3 text-sm">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
