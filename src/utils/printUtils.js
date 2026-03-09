@@ -8,7 +8,7 @@ export const printReceipt = async (orderData) => {
     console.log("✅ Connected to QZ Tray");
 
     // Serial printer configuration for COM6
-    const serialPrinter = qz.configs.create("POS-58 Thermal Printer", {
+    const serialPrinter = qz.configs.create("POS-58(copy-1)", {
       type: 'serial',
       portName: 'COM6',
       baudRate: 9600,
