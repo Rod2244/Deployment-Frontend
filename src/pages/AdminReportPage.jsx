@@ -32,6 +32,50 @@ export default function AdminReportsPage() {
   const [voidPage, setVoidPage] = useState(1); // current page for void tracking
   const itemsPerPage = 5; // items per page for void tracking
 
+  // helper: convert DB rows into chart-compatible format based on the currently selected period
+  const transformTrend = (rows) => {
+    return rows.map((r) => {
+      let label = r.period_key;
+      switch (period) {
+        case 'daily': { // convert iso date to weekday abbreviation
+          const d = new Date(r.period_key);
+          const weekday = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          label = weekday[d.getDay()];
+          break;
+        }
+        case 'weekly': {
+          // r.period_key like "2023-05" -> "W5" (week number)
+          const parts = r.period_key.split('-');
+          label = `W${parseInt(parts[1], 10)}`;
+          break;
+        }
+        case 'monthly': {
+          const [year, mon] = r.period_key.split('-');
+          const m = new Date(year, mon - 1).toLocaleString('en-US', { month: 'short' });
+          label = `${m}`;
+          break;
+        }
+        case 'quarterly': {
+          // r.period_key like "2023-Q2" or "2023-Q1"
+          const parts = r.period_key.split('-Q');
+          if (parts.length === 2) {
+            label = `Q${parts[1]} ${parts[0]}`;
+          } else {
+            label = r.period_key;
+          }
+          break;
+        }
+        case 'yearly': {
+          label = r.period_key;
+          break;
+        }
+        default:
+          break;
+      }
+      return { date: label, sales: r.total_sales };
+    });
+  };
+
   useEffect(() => {
     const fetchSalesData = async () => {
       try {
@@ -66,7 +110,7 @@ export default function AdminReportsPage() {
 
         const [salesRes, todayRes, paymentRes] = await Promise.all([
           fetch(
-            `${API_BASE_URL}/api/sales-admin/sales?period=${period}&startDate=${startDate}&endDate=${endDate}`,
+            `${API_BASE_URL}/api/sales-admin/sales-trend?period=${period}&startDate=${startDate}&endDate=${endDate}`,
             { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }
           ),
           fetch(`${API_BASE_URL}/api/sales-admin/today-sales`, {
@@ -96,61 +140,9 @@ export default function AdminReportsPage() {
           { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }
         ).then(r => r.ok ? r.json() : []);
 
-        // generate a complete list of period keys to fill gaps
-        const generateKeys = () => {
-          const keys = [];
-          const temp = new Date(startDate);
-          for (let i = 0; i < 7; i++) {
-            if (period === 'daily') {
-              keys.push(format(temp));
-              temp.setDate(temp.getDate() + 1);
-            } else if (period === 'weekly') {
-              // ISO week label
-              const year = temp.getFullYear();
-              const wk = String(getWeekNumber(temp)).padStart(2,'0');
-              keys.push(`${year}-${wk}`);
-              temp.setDate(temp.getDate() + 7);
-            } else if (period === 'monthly') {
-              const year = temp.getFullYear();
-              const mon = String(temp.getMonth()+1).padStart(2,'0');
-              keys.push(`${year}-${mon}`);
-              temp.setMonth(temp.getMonth() + 1);
-            }
-          }
-          return keys;
-        };
-
-        const weekNumberCache = {};
-        const getWeekNumber = (d) => {
-          const date = new Date(d.getTime());
-          date.setHours(0,0,0,0);
-          // Thursday-based ISO week
-          date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
-          const week1 = new Date(date.getFullYear(),0,4);
-          return 1 + Math.round(((date - week1) / 86400000 - 3 + ((week1.getDay()+6)%7)) / 7);
-        };
-
-        // Transform data for chart (group by period_key)
-        const rawMap = {};
-        salesData.forEach(item => {
-          rawMap[item.period_key] = Number(item.total_sales || 0);
-        });
-
-        const filled = generateKeys().map(key => {
-          let label = key;
-          if (period === 'daily') {
-            label = new Date(key).toLocaleDateString('en-US', { weekday: 'short' });
-          } else if (period === 'weekly') {
-            const wk = key.split('-')[1];
-            label = `W${wk}`;
-          } else if (period === 'monthly') {
-            const parts = key.split('-');
-            label = `${parts[0]}-${parts[1]}`;
-          }
-          return { date: label, sales: rawMap[key] || 0 };
-        });
-
-        setDailySales(filled.reverse());
+        // Transform data for chart using same logic as SuperAdmin
+        const transformedData = transformTrend(salesData || []);
+        setDailySales(transformedData);
         setTodaySales(todayData);
         // status breakdown (Completed / Voided / Partial Voided)
         const pie = payData.map(p => ({
