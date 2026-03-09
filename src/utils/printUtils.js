@@ -1,76 +1,113 @@
-import qz from 'qz-tray';
+// Simple browser-based printing function
+export const printReceipt = (orderData) => {
+  // Create a new window for printing
+  const printWindow = window.open('', '_blank', 'width=300,height=600');
 
-// Initialize QZ Tray connection
-export const initQZ = async () => {
-  try {
-    await qz.websocket.connect();
-    console.log("✅ Connected to QZ Tray");
-    // List available printers
-    const printers = await qz.printers.find();
-    console.log("Available printers:", printers);
-    return printers;
-  } catch (err) {
-    console.error("❌ QZ Tray connection error:", err);
-    throw err;
+  if (!printWindow) {
+    alert('Please allow popups for printing');
+    return;
   }
-};
 
-// Print receipt function
-export const printReceipt = async (orderData, printerName = "JK-5802H") => {
-  try {
-    // Ensure connected
-    if (!qz.websocket.isActive()) {
-      await qz.websocket.connect();
-      console.log("✅ Connected to QZ Tray");
-    }
+  // Generate receipt HTML
+  const receiptHTML = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Receipt</title>
+      <style>
+        body {
+          font-family: 'Courier New', monospace;
+          font-size: 12px;
+          line-height: 1.2;
+          margin: 0;
+          padding: 10px;
+          width: 48mm; /* 58mm paper width minus margins */
+          text-align: center;
+        }
+        .center { text-align: center; }
+        .left { text-align: left; }
+        .right { text-align: right; }
+        .line { border-top: 1px dashed #000; margin: 5px 0; }
+        .item-row {
+          display: flex;
+          justify-content: space-between;
+          margin: 2px 0;
+        }
+        .total-row {
+          font-weight: bold;
+          border-top: 1px solid #000;
+          padding-top: 5px;
+          margin-top: 5px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="center">
+        🍔 Food Paradise POS<br>
+        Pasonanca, Zamboanga City<br>
+        Contact: +63 111 222 4444<br>
+        <strong>SALES INVOICE</strong>
+      </div>
+      <div class="line"></div>
+      <div class="left">
+        Time: ${orderData.date}<br>
+        Receipt No: #${orderData.orderId}<br>
+        Order Type: ${orderData.orderType}<br>
+        Payment: ${orderData.paymentMethod}
+      </div>
+      <div class="line"></div>
+      <div class="left">
+        <strong>Qty  Item             Price</strong>
+      </div>
+      <div class="line"></div>
+      ${orderData.cart.map(item => `
+        <div class="item-row">
+          <span>${item.qty}</span>
+          <span>${item.item.substring(0, 16)}</span>
+          <span>₱${(item.qty * item.price).toFixed(2)}</span>
+        </div>
+        <div class="left" style="font-size: 10px; margin-left: 20px;">
+          @ ₱${item.price.toFixed(2)}
+        </div>
+      `).join('')}
+      <div class="line"></div>
+      <div class="item-row">
+        <span>Subtotal:</span>
+        <span>₱${orderData.total.toFixed(2)}</span>
+      </div>
+      ${orderData.paymentMethod === "Cash" ? `
+        <div class="item-row">
+          <span>Given:</span>
+          <span>₱${parseFloat(orderData.given).toFixed(2)}</span>
+        </div>
+        <div class="item-row">
+          <span>Change:</span>
+          <span>₱${parseFloat(orderData.change).toFixed(2)}</span>
+        </div>
+      ` : ''}
+      <div class="item-row total-row">
+        <span>TOTAL:</span>
+        <span>₱${orderData.total.toFixed(2)}</span>
+      </div>
+      <div class="line"></div>
+      <div class="center">
+        Thank you for dining!<br>
+        This is not an official receipt
+      </div>
+      <br><br><br>
+    </body>
+    </html>
+  `;
 
-    const config = qz.configs.create(printerName);
+  printWindow.document.write(receiptHTML);
+  printWindow.document.close();
 
-    const cmds = [];
-
-    cmds.push('\x1B\x40'); // init printer
-    cmds.push('\x1B\x61\x01'); // center align
-    cmds.push("🍔 Food Paradise POS\n");
-    cmds.push("Pasonanca, Zamboanga City\n");
-    cmds.push("Contact: +63 111 222 4444\n");
-    cmds.push("SALES INVOICE\n");
-    cmds.push("-------------------------------\n");
-
-    cmds.push('\x1B\x61\x00'); // left align
-    cmds.push(`Time: ${orderData.date}\n`);
-    cmds.push(`Receipt No: #${orderData.orderId}\n`);
-    cmds.push(`Order Type: ${orderData.orderType}\n`);
-    cmds.push(`Payment: ${orderData.paymentMethod}\n`);
-    cmds.push("-------------------------------\n");
-
-    cmds.push("Qty  Item             Price\n");
-    cmds.push("-------------------------------\n");
-    orderData.cart.forEach(item => {
-      const total = item.qty * item.price;
-      cmds.push(`${item.qty.toString().padStart(3)}  ${item.item.padEnd(16)} Php ${total.toFixed(2).padStart(6)}\n`);
-      cmds.push(`      @ Php ${item.price.toFixed(2)}\n`);
-    });
-    cmds.push("-------------------------------\n");
-
-    cmds.push(`Subtotal:           Php ${orderData.total.toFixed(2)}\n`);
-    if (orderData.paymentMethod === "Cash") {
-      cmds.push(`Given:              Php ${parseFloat(orderData.given).toFixed(2)}\n`);
-      cmds.push(`Change:             Php ${parseFloat(orderData.change).toFixed(2)}\n`);
-    }
-    cmds.push(`TOTAL:              Php ${orderData.total.toFixed(2)}\n`);
-    cmds.push("-------------------------------\n");
-
-    cmds.push('\x1B\x61\x01'); // center
-    cmds.push("Thank you for dining!\n");
-    cmds.push("This is not an official receipt\n\n\n");
-
-    cmds.push('\x1B\x64\x03'); // feed 3 lines
-    cmds.push('\x1D\x56\x00'); // cut
-
-    await qz.print(config, cmds);
-    console.log("✅ Print successful");
-  } catch (err) {
-    console.error("❌ Print failed:", err);
-    throw err;
-  }
+  // Wait for content to load then print
+  printWindow.onload = () => {
+    printWindow.print();
+    // Close the window after printing (optional)
+    setTimeout(() => {
+      printWindow.close();
+    }, 1000);
+  };
 };

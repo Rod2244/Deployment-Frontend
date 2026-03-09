@@ -23,13 +23,8 @@ export default function OrderActions({ orderItems, orderType, discountType = "No
     setShowCheckout(false);
     setShowPrinting(true);
 
-    // Print the receipt
-    try {
-      await printReceipt(orderData);
-    } catch (err) {
-      console.error("Printing failed:", err);
-      // Still proceed, maybe show error later
-    }
+    // Print the receipt using browser print
+    printReceipt(orderData);
   
     // Clear items and reset discount when checkout is completed
     if (onOrderComplete) {
