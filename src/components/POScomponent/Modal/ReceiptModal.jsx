@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAlert } from "@/context/AlertContext";
 import API_BASE_URL from '../../../config/api';
 
@@ -12,9 +12,19 @@ export default function ReceiptModal({
   onClose,
 }) {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const { error } = useAlert();
 
+  // Auto-print receipt when modal loads
+  useEffect(() => {
+    console.log("📋 ReceiptModal loaded, auto-printing...");
+    handlePrint();
+  }, []);
+
   const handlePrint = async () => {
+    console.log("🖨️ Starting print process...");
+    setIsPrinting(true);
+    
     const payload = {
       transactionId,
       transactionNumber,
@@ -25,6 +35,7 @@ export default function ReceiptModal({
     };
 
     try {
+      console.log("📤 Sending print request to backend...", payload);
       const res = await fetch(`${API_BASE_URL}/api/print-receipt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,21 +43,27 @@ export default function ReceiptModal({
       });
 
       const data = await res.json();
+      console.log("📥 Print response:", data);
 
       if (data.success) {
+        console.log("✅ Print successful");
         setShowSuccess(true);
+        setIsPrinting(false);
 
-        // ✅ Auto close popup + modal
+        // ✅ Auto close popup + modal after 2 seconds
         setTimeout(() => {
           setShowSuccess(false);
           onClose();
         }, 2000);
       } else {
+        console.error("❌ Print failed:", data.message);
+        setIsPrinting(false);
         error("Printer Error", data.message ? `Printer error: ${data.message}` : "Failed to print receipt.");
       }
     } catch (err) {
-      console.error(err);
-      error("Print Failed", "Failed to print receipt.");
+      console.error("❌ Print request failed:", err);
+      setIsPrinting(false);
+      error("Print Failed", "Failed to print receipt: " + err.message);
     }
   };
 
@@ -114,14 +131,20 @@ export default function ReceiptModal({
 
       <div className="flex gap-2 mt-2">
         <button
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-colors"
+          className={`flex-1 font-bold py-2 rounded-lg transition-colors ${
+            isPrinting
+              ? "bg-blue-400 text-white cursor-wait"
+              : "bg-green-600 hover:bg-green-700 text-white"
+          }`}
           onClick={handlePrint}
+          disabled={isPrinting}
         >
-          🖨️ Print Receipt
+          {isPrinting ? "🔄 Printing..." : "🖨️ Print Receipt"}
         </button>
         <button
           className="flex-1 bg-gray-300 hover:bg-gray-400 font-bold py-2 rounded-lg transition-colors"
           onClick={onClose}
+          disabled={isPrinting}
         >
           Close
         </button>
