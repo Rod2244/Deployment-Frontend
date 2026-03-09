@@ -1,6 +1,5 @@
 // Simple browser-based printing function
 export const printReceipt = (orderData) => {
-  alert("🖨️ Starting print process...");
   console.log("🖨️ Starting print process...", orderData);
 
   // Create an iframe for printing
