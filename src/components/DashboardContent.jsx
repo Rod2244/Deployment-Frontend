@@ -212,7 +212,7 @@ const DashboardContent = () => {
       <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">Top Menu Sales by Branch</h3>
         <TopMenuSalesChart menuSales={menuSales} />
-        <p className="text-center text-sm text-gray-500 mt-4">Ranked by total sales amount across all branches</p>
+        <p className="text-center text-sm text-gray-500 mt-7">Ranked by total sales amount across all branches</p>
       </div>
 
 
