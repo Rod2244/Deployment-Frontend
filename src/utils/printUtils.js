@@ -1,31 +1,19 @@
 import qz from "qz-tray";
 
-// Print receipt using Windows printer
 export const printReceipt = async (orderData) => {
   try {
-
-    console.log("🔍 Connecting to QZ Tray...");
-    if (!qz.websocket.isActive()) {
-      await qz.websocket.connect();
-    }
-
-    console.log("✅ Connected to QZ Tray");
-
-    // Change this to EXACT printer name in Windows
-    const printer = qz.configs.create("POS-58(copy of 1)");
-
-    console.log("📄 Formatting receipt...");
+    console.log("Connecting to QZ Tray...");
+    await qz.websocket.connect();
 
     const receipt = [
-      '\x1B\x40', // Initialize printer
-      '\x1B\x61\x01', // Center align
+      '\x1B\x40',
+      '\x1B\x61\x01',
       '*** Food Paradise POS ***\n',
       'Pasonanca, Zamboanga City\n',
       'Contact: +63 111 222 4444\n',
       'SALES INVOICE\n',
       '-------------------------------\n',
-
-      '\x1B\x61\x00', // Left align
+      '\x1B\x61\x00',
       `Time: ${orderData.date}\n`,
       `Receipt No: #${orderData.orderId}\n`,
       `Order Type: ${orderData.orderType}\n`,
@@ -35,42 +23,33 @@ export const printReceipt = async (orderData) => {
       '-------------------------------\n'
     ];
 
-    // Items
     orderData.cart.forEach(item => {
       const total = item.qty * item.price;
-
-      receipt.push(
-        `${item.qty.toString().padStart(3)}  ${item.item.padEnd(20)} ₱${total.toFixed(2).padStart(6)}\n`
-      );
-
-      receipt.push(`      @ ₱${item.price.toFixed(2)}\n`);
+      receipt.push(`${item.qty} ${item.item} ₱${total.toFixed(2)}\n`);
     });
 
     receipt.push('-------------------------------\n');
-    receipt.push(`Subtotal:                ₱${orderData.total.toFixed(2)}\n`);
+    receipt.push(`TOTAL: ₱${orderData.total.toFixed(2)}\n`);
+    receipt.push('\n\n\n');
 
-    if (orderData.paymentMethod === "Cash") {
-      receipt.push(`Given:                   ₱${parseFloat(orderData.given).toFixed(2)}\n`);
-      receipt.push(`Change:                  ₱${parseFloat(orderData.change).toFixed(2)}\n`);
-    }
+    // open serial connection
+    await qz.serial.open({
+      port: 'COM6',
+      baudRate: 9600,
+      dataBits: 8,
+      stopBits: 1,
+      parity: 'none'
+    });
 
-    receipt.push(`TOTAL:                   ₱${orderData.total.toFixed(2)}\n`);
-    receipt.push('-------------------------------\n');
+    // send receipt
+    await qz.serial.send(receipt.join(''));
 
-    receipt.push('\x1B\x61\x01'); // Center
-    receipt.push('Thank you for dining!\n');
-    receipt.push('This is not an official receipt\n\n\n');
+    // close serial
+    await qz.serial.close();
 
-    receipt.push('\x1B\x64\x03'); // Feed paper
-    receipt.push('\x1D\x56\x00'); // Cut paper
-
-    console.log("🖨️ Sending to printer...");
-
-    await qz.print(printer, receipt);
-
-    console.log("✅ Print successful");
+    console.log("Print successful");
 
   } catch (err) {
-    console.error("❌ Print failed:", err);
+    console.error("Print failed:", err);
   }
 };
