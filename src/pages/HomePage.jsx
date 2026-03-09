@@ -45,7 +45,7 @@ export default function HomePage() {
             <img 
             src={logo} 
             alt="App Logo" 
-            className="h-10 object-contain"
+            className="h-12 object-contain"
             />
           
           {/* Navigation on Right */}
@@ -153,9 +153,6 @@ export default function HomePage() {
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-2">{dish.name}</h3>
                   <p className="text-2xl font-bold text-emerald-700">{dish.price}</p>
-                  <button className="mt-4 w-full py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors">
-                    Add to Order
-                  </button>
                 </div>
               </div>
             ))}
